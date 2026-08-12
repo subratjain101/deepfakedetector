@@ -1,1 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <title>Face Recognition</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <header>
+        <h1>Face Recognition</h1>
+        <p>
+            AI-powered face verification using DeepFace and cosine similarity
+        </p>
+    </header>
+
+    {% if error %}
+    <div class="error">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <form
+        action="/api/verify-ui"
+        method="post"
+        enctype="multipart/form-data"
+    >
+
+        <div class="upload-grid">
+
+            <!-- IMAGE 1 -->
+            <div class="card">
+
+                <h2>Person 1</h2>
+
+                <label for="image1">
+                    Select or capture image
+                </label>
+
+                <input
+                    type="file"
+                    id="image1"
+                    name="image1"
+                    accept="image/*"
+                    capture="user"
+                    required
+                >
+
+                <img
+                    id="preview1"
+                    class="preview"
+                    alt="Person 1 preview"
+                >
+
+            </div>
+
+
+            <!-- IMAGE 2 -->
+            <div class="card">
+
+                <h2>Person 2</h2>
+
+                <label for="image2">
+                    Select image
+                </label>
+
+                <input
+                    type="file"
+                    id="image2"
+                    name="image2"
+                    accept="image/*"
+                    required
+                >
+
+                <img
+                    id="preview2"
+                    class="preview"
+                    alt="Person 2 preview"
+                >
+
+            </div>
+
+        </div>
+
+        <button type="submit">
+            Verify Faces
+        </button>
+
+    </form>
+
+
+    {% if result %}
+
+    <div class="result-card">
+
+        {% if result.verified %}
+
+        <div class="status success">
+            ✓ SAME PERSON
+        </div>
+
+        {% else %}
+
+        <div class="status failure">
+            ✕ DIFFERENT PERSON
+        </div>
+
+        {% endif %}
+
+
+        <div class="score">
+            {{ result.similarity }}
+        </div>
+
+        <p>Cosine Similarity</p>
+
+
+        <div class="details">
+
+            <div>
+                <strong>Threshold</strong>
+                <span>{{ result.threshold }}</span>
+            </div>
+
+            <div>
+                <strong>Model</strong>
+                <span>{{ result.model }}</span>
+            </div>
+
+            <div>
+                <strong>Embedding</strong>
+                <span>{{ result.embedding_dimension }} dimensions</span>
+            </div>
+
+        </div>
+
+
+        <div class="result-images">
+
+            <img
+                src="{{ result.image1 }}"
+                alt="First face"
+            >
+
+            <img
+                src="{{ result.image2 }}"
+                alt="Second face"
+            >
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+
+    <footer>
+
+        <a href="/docs">
+            API Documentation
+        </a>
+
+        <span>•</span>
+
+        <a href="/health">
+            Health Check
+        </a>
+
+    </footer>
+
+</div>
+
+
+<script>
+
+function previewImage(input, previewId) {
+
+    const preview = document.getElementById(previewId);
+
+    if (input.files && input.files[0]) {
+
+        const reader = new FileReader();
+
+        reader.onload = function(event) {
+
+            preview.src = event.target.result;
+
+            preview.style.display = "block";
+
+        };
+
+        reader.readAsDataURL(input.files[0]);
+
+    }
+
+}
+
+
+document
+    .getElementById("image1")
+    .addEventListener("change", function() {
+
+        previewImage(this, "preview1");
+
+    });
+
+
+document
+    .getElementById("image2")
+    .addEventListener("change", function() {
+
+        previewImage(this, "preview2");
+
+    });
+
+</script>
+
+</body>
+</html>
